@@ -1,0 +1,78 @@
+import tkinter as tk
+from tkinter import ttk, filedialog
+import hashlib
+import time
+from threading import Thread
+
+class CountdownApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Identical_File_Checker")
+        self.root.configure(bg="green")
+
+        self.file_path1 = tk.StringVar()
+        self.file_path2 = tk.StringVar()
+        
+        self.result_text = tk.StringVar()
+        self.result_text.set("")
+
+        self.label1 = tk.Label(root, text="Select the First File:", bg="green", font=("Helvetica", 30))
+        self.label1.pack()
+
+        self.choose_button1 = tk.Button(root, text="Choose File", command=self.choose_file1, bg="yellow", fg="black", font=("Helvetica", 30))
+        self.choose_button1.pack()
+
+        self.label2 = tk.Label(root, text="Select the Second File:", bg="green", font=("Helvetica", 30))
+        self.label2.pack()
+
+        self.choose_button2 = tk.Button(root, text="Choose File", command=self.choose_file2, bg="yellow", fg="black", font=("Helvetica", 30))
+        self.choose_button2.pack()
+
+        self.check_button = tk.Button(root, text="Check Files", command=self.check_files, bg="#007BFF", fg="white", font=("Helvetica", 30))
+        self.check_button.pack(pady=50)  # Add vertical padding here
+
+        self.result_label = tk.Label(root, textvariable=self.result_text, bg="#F0F0F0", font=("Helvetica", 14), fg="red")
+        self.result_label.pack()
+
+    def choose_file1(self):
+        self.file_path1.set(filedialog.askopenfilename())
+
+    def choose_file2(self):
+        self.file_path2.set(filedialog.askopenfilename())
+
+    def check_files(self):
+        file1 = self.file_path1.get()
+        file2 = self.file_path2.get()
+
+        if file1 and file2:
+            hash1, hash2 = self.hash_file(file1, file2)
+            if hash1 != hash2:
+                self.result_text.set("These files are not identical")
+            else:
+                self.result_text.set("These files are identical")
+        else:
+            self.result_text.set("Please select valid files!!!")
+
+    def hash_file(self, file_path1, file_path2):
+        h1 = hashlib.sha1()
+        h2 = hashlib.sha1()
+
+        with open(file_path1, "rb") as file:
+            chunk = 0
+            while chunk != b'':
+                chunk = file.read(1024)
+                h1.update(chunk)
+
+        with open(file_path2, "rb") as file:
+            chunk = 0
+            while chunk != b'':
+                chunk = file.read(1024)
+                h2.update(chunk)
+
+        return h1.hexdigest(), h2.hexdigest()
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = CountdownApp(root)
+    root.mainloop()
